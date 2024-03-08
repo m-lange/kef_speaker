@@ -4,30 +4,23 @@ from __future__ import annotations
 
 import logging
 from typing import Any
-from .kef_connector import KefConnector
 
 import voluptuous as vol
 
 from homeassistant.config_entries import ConfigFlow
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.aiohttp_client as hass_aiohttp
 from homeassistant.data_entry_flow import FlowResult
+import homeassistant.helpers.aiohttp_client as hass_aiohttp
 
-from .exceptions import (
-    CannotConnect
-)
-
-from .const import (
-    DOMAIN, 
-    CONF_HOST
-)
-
+from .const import CONF_HOST, DOMAIN
+from .exceptions import CannotConnect
+from .kef_connector import KefConnector
 
 _LOGGER = logging.getLogger(__name__)
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect. """
+    """Validate the user input allows us to connect."""
 
     _LOGGER.debug("validate_input")
 
@@ -86,7 +79,7 @@ class KefConfigFlow(ConfigFlow, domain = DOMAIN):
             data_schema=vol.Schema(data),
             errors=errors,
         )
-    
+
 
     async def async_step_import(self, user_input: dict) -> FlowResult:
         """Handle a flow initialized by import from configuration file."""
@@ -99,4 +92,3 @@ class KefConfigFlow(ConfigFlow, domain = DOMAIN):
         })
 
         return self.async_create_entry(title=info["title"], data=user_input)
-    

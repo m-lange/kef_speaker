@@ -3,26 +3,20 @@
 from __future__ import annotations
 
 import logging
-from .kef_connector import KefConnector
 
 import voluptuous as vol
 
-from homeassistant.config_entries import ConfigEntry
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
-import homeassistant.helpers.aiohttp_client as hass_aiohttp
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers import config_validation as cv
-from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+import homeassistant.helpers.aiohttp_client as hass_aiohttp
+from homeassistant.helpers.typing import ConfigType
 
-
+from .const import CONF_HOST, DOMAIN
 from .exceptions import CannotConnect
-
-from .const import (
-    DOMAIN, 
-    CONF_HOST
-)
+from .kef_connector import KefConnector
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -40,11 +34,11 @@ CONFIG_SCHEMA = vol.Schema(
 
 
 async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Set up KEF LSX II from configuration file"""
+    """Set up KEF LSX II from configuration file."""
 
     if DOMAIN not in config:
         return True
-        
+
     hass.async_create_task(
         hass.config_entries.flow.async_init(
             DOMAIN,
@@ -67,7 +61,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         _LOGGER.info(f"Trying to connect to KEF LSX II at {host}")
         mac_address = await speaker.mac_address
-        device_name = await speaker.device_name
 
         if mac_address is None:
             raise CannotConnect()

@@ -2,6 +2,7 @@
     "domain": "kef_speaker",
     "name": "KEF LSX II",
     "codeowners": ["@m-lange"],
+    "dependencies": [],
     "config_flow": true,
     "documentation": "https://github.com/m-lange/kef_speaker",
     "iot_class": "local_polling",
