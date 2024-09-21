@@ -168,6 +168,9 @@ class KefConnector:
 
     async def turn_on(self) -> None:
         """Turn the speaker on."""
+        if self._previous_source not in [ "wifi", "bluetooth", "tv", "optical", "usb", "analog" ]:
+            self._previous_source = "wifi"
+
         await self.set_source(self._previous_source)
 
 
