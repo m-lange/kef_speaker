@@ -59,24 +59,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
         speaker = KefConnector(host, session, hass)
 
-        _LOGGER.info(f"Trying to connect to KEF LSX II at {host}")
+        _LOGGER.info("Trying to connect to KEF LSX II at %s", host)
         mac_address = await speaker.mac_address
 
         if mac_address is None:
-            raise CannotConnect()
+            _LOGGER.error("Connection refused")
+            raise ConfigEntryNotReady from None
 
         # Store an instance of the "connecting" class that does the work of speaking
         # with your actual devices.
         hass.data.setdefault(DOMAIN, {})
         hass.data[DOMAIN][entry.entry_id] = speaker
-
-        for component in PLATFORMS:
-            hass.async_create_task(
-                hass.config_entries.async_forward_entry_setup(entry, component)
-            )
+        await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     except CannotConnect:
         _LOGGER.error("Connection refused")
-        raise ConfigEntryNotReady
+        raise ConfigEntryNotReady from None
 
     return True

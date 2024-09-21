@@ -1,10 +1,13 @@
+"""Class to control KEF LS50 Wireless II, LSX II and LS60."""
 
 import homeassistant.helpers.aiohttp_client as hass_aiohttp
 
 
 class KefConnector:
+    """Connector class to control KEF LS50 Wireless II, LSX II and LS60."""
 
     def __init__(self, host, session=None, hass=None):
+        """Initialize connector class."""
         self._host = host
         self._session = session
         self._hass = hass
@@ -21,6 +24,7 @@ class KefConnector:
 
 
     async def resurect_session(self) -> None:
+        """Resurect session."""
         if self._session is None:
             self._session = hass_aiohttp.async_get_clientsession(self._hass)
 
@@ -83,7 +87,7 @@ class KefConnector:
         controls["like"]      = response[0].get("controls", {}).get("like", False)
         controls["dislike"]   = response[0].get("controls", {}).get("dislike", False)
 
-        controls["playMode"]                     = dict()
+        controls["playMode"]                     = {}
         controls["playMode"]["repeatAll"]        = response[0].get("controls", {}).get("playMode", {}).get("repeatAll", False)
         controls["playMode"]["shuffleRepeatAll"] = response[0].get("controls", {}).get("playMode", {}).get("shuffleRepeatAll", False)
         controls["playMode"]["shuffle"]          = response[0].get("controls", {}).get("playMode", {}).get("shuffle", False)
@@ -236,24 +240,23 @@ class KefConnector:
 
         await self.resurect_session()
         async with self._session.get(self._getDataUrl, params=payload) as response:
-            json = await response.json()
+            return await response.json()
 
-        return json
 
 
     async def _set(self, path: str, type: str, value: str) -> None:
         payload = {
             "path": path,
             "roles": "value",
-            "value": """{{"type":"{0}","{0}":"{1}"}}""".format(type, value)
+            "value": f"""{{"type":"{type}","{type}":"{value}"}}"""
         }
 
         await self.resurect_session()
         async with self._session.get(self._setDataUrl, params=payload) as response:
-            json = await response.json()
+            await response.json()
 
 
-    async def _control(self, command: str, type: str = None, value: str = None) -> None:
+    async def _control(self, command: str, type: str|None = None, value: str|None = None) -> None:
 
         payload = {
             "path": "player:player/control",
@@ -261,13 +264,13 @@ class KefConnector:
         }
 
         if type is None and value is None:
-            payload["value"] = """{{"control":"{0}"}}""".format(command)
+            payload["value"] = f"""{{"control":"{command}"}}"""
         else:
-            payload["value"] = """{{"control":"{0}", "{1}": "{2}" }}""".format(command, type, value)
+            payload["value"] = f"""{{"control":"{command}", "{type}": "{value}" }}"""
 
         await self.resurect_session()
         async with self._session.get(self._setDataUrl, params=payload) as response:
-            json = await response.json()
+            await response.json()
 
 
 
@@ -322,7 +325,7 @@ class KefConnector:
             poll_speaker["app_id"] = response[0].get("mediaRoles", {}).get("mediaData", {}).get("metaData", {}) .get("serviceID", None)
 
         # Name of the current running app.
-        poll_speaker["app_name"] = poll_speaker["app_id"] 
+        poll_speaker["app_name"] = poll_speaker["app_id"]
 
 
         # Album artist of current playing media, music track only.

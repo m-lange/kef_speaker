@@ -31,16 +31,16 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
         speaker = KefConnector(host, session, hass)
 
-        _LOGGER.info(f"Trying to connect to KEF LSX II at {host}")
+        _LOGGER.info("Trying to connect to KEF LSX II at %s", host)
         mac_address = await speaker.mac_address
         device_name = await speaker.device_name
 
         if mac_address is None:
-            raise CannotConnect()
+            raise CannotConnect  # noqa: TRY301
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         _LOGGER.error(str(e))
-        raise CannotConnect
+        raise CannotConnect from None
 
     return {
         "title": device_name,
